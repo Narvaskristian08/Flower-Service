@@ -1,26 +1,30 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $fields =$request->validate(
+        $fields = $request->validate(
             [
-                'name'=>'required|max:255',
-                'email'=>'required|email|unique:users',
-                'password'=>'required|confirmed'
-            ]);
-   
-        $user=User::create($fields);
-        $token =$user->createToken($request->name);
+                'name' => 'required|max:255',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|confirmed'
+            ]
+        );
+
+        $user = User::create($fields);
+        $token = $user->createToken($request->name);
         return [
-            'user'=>$user,
-            'token'=>$token
-            
+            'user' => $user,
+            'token' => $token
+
         ];
     }
 
@@ -28,10 +32,23 @@ class AuthController extends Controller
     {
         $request->validate(
             [
-                'email'=>'required|email|unique:users',
-                'password'=>'required|confirmed'
-            ]);
-        $user= User::wher('email',$request->email)->first();
+                'email' => 'required|email',
+                'password' => 'required'
+            ]
+        );
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return [
+                'message' => 'The provided credentials Are Incorrect'
+            ];
+        }
+        
+        $token = $user->createToken($user->name);
+        return [
+            'user' => $user,
+            'token' => $token -> plainTextToken
+        ];
     }
     public function logout(Request $request)
     {
