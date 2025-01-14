@@ -43,7 +43,7 @@ class AuthController extends Controller
                 'message' => 'The provided credentials Are Incorrect'
             ];
         }
-        
+
         $token = $user->createToken($user->name);
         return [
             'user' => $user,
@@ -52,6 +52,10 @@ class AuthController extends Controller
     }
     public function logout(Request $request)
     {
-        return 'logout';
+        $request->user()->tokens()->delete();
+        return [
+            'message' => 'You Are Logged Out'
+        ];
+
     }
 }
