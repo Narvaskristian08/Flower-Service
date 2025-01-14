@@ -20,12 +20,18 @@ class AuthController extends Controller
         return [
             'user'=>$user,
             'token'=>$token
+            
         ];
     }
 
     public function login(Request $request)
     {
-        return 'login';
+        $request->validate(
+            [
+                'email'=>'required|email|unique:users',
+                'password'=>'required|confirmed'
+            ]);
+        $user= User::wher('email',$request->email)->first();
     }
     public function logout(Request $request)
     {
